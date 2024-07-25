@@ -25,8 +25,8 @@ jobs:
 
     - name: Build the Docker image
       run: |
-        docker build . --file Dockerfile --tag your-dockerhub-username/your-image-name:latest
+        docker build . --file Dockerfile --tag dvpatil250/test-c1:latest
 
     - name: Push Docker image to Docker Hub
       run: |
-        docker push your-dockerhub-username/your-image-name:latest
+        docker push dvpatil250/test-c1:latest
