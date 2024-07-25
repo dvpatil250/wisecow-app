@@ -46,8 +46,8 @@ jobs:
 
     - name: Deploy to Kubernetes
       run: |
-        kubectl apply -f k8s/wisecow-deployment.yml
-        kubectl apply -f k8s/wisecow-service.yml
+        kubectl apply -f wisecow-deployment.yml
+        kubectl apply -f wisecow-service.yml
 
     - name: Verify Deployment
       run: |
