@@ -1,0 +1,62 @@
+name: Deploy Docker Image to Kubernetes
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Build Docker image
+      run: |
+        docker build . --file Dockerfile --tag dvpatil250/test-c1:latest
+
+    - name: Push Docker image to Docker Hub
+      run: |
+        docker push dvpatil250/test-c:latest
+
+    - name: Set up kubectl
+      uses: azure/setup-kubectl@v2
+      with:
+        version: '1.25.0'
+
+    - name: Configure kubectl
+      env:
+        KUBECONFIG: ${{ secrets.KUBECONFIG }}
+      run: echo "${KUBECONFIG}" > $HOME/.kube/config
+
+    - name: Deploy to Kubernetes
+      run: |
+        kubectl apply -f wisecow-deployment.yml
+        kubectl apply -f wisecow-service.yml
+
+    - name: Verify Deployment
+      run: |
+        kubectl rollout status deployment/wisecow
+        kubectl get service wisecow
+
+    - name: Wait for Service to be Ready
+      run: |
+        while [ -z "$(kubectl get service wisecow -o jsonpath='{.status.loadBalancer.ingress[0].ip}')" ]; do
+          echo "Waiting for service to get an external IP..."
+          sleep 30
+        done
+        echo "Service is available at $(kubectl get service wisecow -o jsonpath='{.status.loadBalancer.ingress[0].ip}')"
