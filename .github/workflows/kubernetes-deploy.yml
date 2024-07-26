@@ -38,8 +38,26 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
+        aws-region: us-east-1
 
     - name: Update kubeconfig
       run: |
-        aws eks update-ku
+        aws eks update-kubeconfig --name cowsay --region us-east-1
+
+    - name: Deploy to Kubernetes
+      run: |
+        kubectl apply -f wisecow-deployment.yml
+        kubectl apply -f wisecow-service.yml
+
+    - name: Verify Deployment
+      run: |
+        kubectl rollout status deployment/wisecow
+        kubectl get service wisecow
+
+    - name: Wait for Service to be Ready
+      run: |
+        while [ -z "$(kubectl get service wisecow -o jsonpath='{.status.loadBalancer.ingress[0].ip}')" ]; do
+          echo "Waiting for service to get an external IP..."
+          sleep 30
+        done
+        echo "Service is available at $(kubectl get service wisecow -o jsonpath='{.status.loadBalancer.ingress[0].ip}')"
