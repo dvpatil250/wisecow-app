@@ -48,10 +48,6 @@ jobs:
       run: |
         kubectl apply -f wisecow-deployment.yml
         kubectl apply -f wisecow-service.yml
-    - name: Verify Deployment
-      run: |
-        kubectl rollout status deployment/wisecow
-        kubectl get service wisecow
 
     - name: Wait for Service to be Ready
       run: |
