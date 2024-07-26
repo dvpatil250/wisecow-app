@@ -42,17 +42,4 @@ jobs:
 
     - name: Update kubeconfig
       run: |
-        aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region ${{ secrets.AWS_REGION }}
-
-    - name: Deploy to Kubernetes
-      run: |
-        kubectl apply -f wisecow-deployment.yml
-        kubectl apply -f wisecow-service.yml
-
-    - name: Wait for Service to be Ready
-      run: |
-        while [ -z "$(kubectl get service wisecow -o jsonpath='{.status.loadBalancer.ingress[0].ip}')" ]; do
-          echo "Waiting for service to get an external IP..."
-          sleep 30
-        done
-        echo "Service is available at $(kubectl get service wisecow -o jsonpath='{.status.loadBalancer.ingress[0].ip}')"
+        aws eks update-ku
